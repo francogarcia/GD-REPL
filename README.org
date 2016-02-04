@@ -6,6 +6,13 @@
 This adds a Repeat, Evaluate, Print, Loop (REPL) module to Godot, allowing one
 to evaluate GDScript expressions in the editor itself.
 
+* Example
+
+See the =editor_plugin= project.
+
+Currently, it only supports expressions which evaluates to a result (or a call
+to an existing function).
+
 * Installation
 
 Clone or extract this project into Godot's ~module~ directory. Then follow the

@@ -1,0 +1,82 @@
+[gd_scene load_steps=2 format=1]
+
+[ext_resource path="res://repl_plugin.gd" type="Script" id=1]
+
+[node name="EditorPlugin" type="EditorPlugin"]
+
+script/script = ExtResource( 1 )
+__meta__ = { "__editor_plugin_screen__":"Script" }
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+
+margin/right = 1024.0
+margin/bottom = 600.0
+focus/ignore_mouse = false
+focus/stop_mouse = false
+size_flags/horizontal = 2
+size_flags/vertical = 2
+alignment = 0
+
+[node name="Code" type="Label" parent="VBoxContainer"]
+
+margin/right = 1024.0
+margin/bottom = 13.0
+focus/ignore_mouse = true
+focus/stop_mouse = true
+size_flags/horizontal = 2
+text = "Code"
+percent_visible = 1.0
+lines_skipped = 0
+max_lines_visible = -1
+
+[node name="CodeText" type="TextEdit" parent="VBoxContainer"]
+
+margin/top = 17.0
+margin/right = 1024.0
+margin/bottom = 117.0
+rect/min_size = Vector2( 0, 100 )
+focus/ignore_mouse = false
+focus/stop_mouse = true
+size_flags/horizontal = 2
+size_flags/vertical = 2
+
+[node name="Button" type="Button" parent="VBoxContainer"]
+
+margin/top = 121.0
+margin/right = 1024.0
+margin/bottom = 140.0
+focus/ignore_mouse = false
+focus/stop_mouse = true
+size_flags/horizontal = 2
+size_flags/vertical = 2
+toggle_mode = false
+text = "Evaluate"
+flat = false
+
+[node name="Output" type="Label" parent="VBoxContainer"]
+
+margin/top = 144.0
+margin/right = 1024.0
+margin/bottom = 157.0
+focus/ignore_mouse = true
+focus/stop_mouse = true
+size_flags/horizontal = 2
+text = "Output"
+percent_visible = 1.0
+lines_skipped = 0
+max_lines_visible = -1
+
+[node name="OutputText" type="TextEdit" parent="VBoxContainer"]
+
+margin/top = 161.0
+margin/right = 1024.0
+margin/bottom = 461.0
+rect/min_size = Vector2( 0, 300 )
+focus/ignore_mouse = false
+focus/stop_mouse = true
+size_flags/horizontal = 2
+size_flags/vertical = 2
+
+[connection signal="pressed" from="VBoxContainer/Button" to="." method="_on_Button_pressed"]
+
+
