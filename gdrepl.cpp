@@ -89,11 +89,3 @@ String REPL::run_script_code(const String& scriptCode) {
 
 	return "[ERROR: Evaluation returned error code:" + itos(callError.error) + "]";
 }
-
-// To change spaces to tabs: M-x tabify
-// Local Variables:
-// mode: c++
-// tab-width: 4
-// c-basic-offset: 4
-// indent-tabs-mode: t
-// End:

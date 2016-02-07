@@ -34,11 +34,3 @@ private:
 };
 
 #endif
-
-// To change spaces to tabs: M-x tabify
-// Local Variables:
-// mode: c++
-// tab-width: 4
-// c-basic-offset: 4
-// indent-tabs-mode: t
-// End:
