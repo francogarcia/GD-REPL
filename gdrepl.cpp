@@ -71,7 +71,7 @@ String REPL::run_script_code(const String& p_script_code) {
 	if (error) {
 
 		print_line("Error: " + p_script_code);
-		return "[ERROR Loading creating the script]";
+		return "[ERROR: Call to reload() failed.]";
 	}
 
 	ScriptInstance* pInstance = script->instance_create(this);
@@ -84,8 +84,8 @@ String REPL::run_script_code(const String& p_script_code) {
 		return result;
 	}
 
-	print_line("Error eval! Error code: " + itos(callError.error));
+	print_line("Error: calling the function returned Error Code: " + itos(callError.error));
 	memdelete(pInstance);
 
-	return "[ERROR: Evaluation returned error code:" + itos(callError.error) + "]";
+	return "[ERROR: Running the code returned Error Code: " + itos(callError.error) + "]";
 }
