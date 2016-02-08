@@ -23,17 +23,17 @@ REPL::~REPL() {
 	m_pScriptLanguage = NULL;
 }
 
-String REPL::eval_expression(const String& expression) {
+String REPL::eval_expression(const String& p_expression) {
 
-	return run_script_code("\treturn " + (expression.strip_edges()));
+	return run_script_code("\treturn " + (p_expression.strip_edges()));
 }
 
-String REPL::eval_code_block(const String& code_block) {
+String REPL::eval_code_block(const String& p_code_block) {
 
 	String script_text = "";
 
 	// Append a tab for every line of the code block.
-	Vector<String> lines = function.strip_edges().split("\n");
+	Vector<String> lines = p_code_block.strip_edges().split("\n");
 	int total_lines = lines.size();
 	for (int i = 0; i < total_lines; i++) {
 
@@ -62,15 +62,15 @@ String REPL::build_script(const String& p_text) {
 	return script_text;
 }
 
-String REPL::run_script_code(const String& scriptCode) {
+String REPL::run_script_code(const String& p_script_code) {
 
 	Ref<Script> script = Ref<Script>(m_pScriptLanguage->create_script());
-	script->set_source_code(build_script(scriptCode));
+	script->set_source_code(build_script(p_script_code));
 	//ERR_FAIL_COND(!script.is_valid());
 	Error error = script->reload();
 	if (error) {
 
-		print_line("Error: " + scriptCode);
+		print_line("Error: " + p_script_code);
 		return "[ERROR Loading creating the script]";
 	}
 

@@ -21,8 +21,8 @@ public:
 	REPL();
 	virtual ~REPL();
 
-	String eval_expression(const String& expression);
-	String eval_code_block(const String& code_block);
+	String eval_expression(const String& p_expression);
+	String eval_code_block(const String& p_code_block);
 
 private:
 	// Build a fake tool script to run the expression in a function.
@@ -30,7 +30,7 @@ private:
 	// to string in s(), which is called in REPL::eval().
 	String build_script(const String& p_text);
 
-	String run_script_code(const String& scriptCode);
+	String run_script_code(const String& p_script_code);
 };
 
 #endif
