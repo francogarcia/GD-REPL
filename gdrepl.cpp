@@ -53,12 +53,18 @@ String REPL::eval_code_block(const String& p_code_block) {
 // String PropertyValueEvaluator::_build_script(const String& p_text),
 // available in:
 // https://github.com/godotengine/godot/pull/453/files
-String REPL::build_script(const String& p_text) {
+String REPL::build_script(const String& p_text, const bool p_enable_tool_mode) {
+	const String empty_lines = "\n\n";
 
-	String script_text = "tool\n\nfunc e():\n";
+	String script_text = "";
+	if (p_enable_tool_mode) {
+
+		script_text += "tool" + empty_lines;
+	}
+	script_text += "func e():\n";
 	//script_text += p_text.strip_edges();
 	script_text += p_text;
-	script_text += "\n\n";
+	script_text += empty_lines;
 
 	//print_line(script_text);
 
