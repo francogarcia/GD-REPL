@@ -7,6 +7,7 @@
 
 void REPL::_bind_methods() {
 
+	ObjectTypeDB::bind_method("eval", &REPL::eval);
 	ObjectTypeDB::bind_method("eval_expression", &REPL::eval_expression);
 	ObjectTypeDB::bind_method("eval_code_block", &REPL::eval_code_block);
 }
@@ -23,9 +24,14 @@ REPL::~REPL() {
 	m_pScriptLanguage = NULL;
 }
 
-String REPL::eval_expression(const String& p_expression) {
+Variant REPL::eval(const String& p_expression) {
 
 	return run_script_code("\treturn " + (p_expression.strip_edges()));
+}
+
+String REPL::eval_expression(const String& p_expression) {
+
+	return run_script_code_and_convert_result_to_string("\treturn " + (p_expression.strip_edges()));
 }
 
 String REPL::eval_code_block(const String& p_code_block) {
@@ -40,7 +46,7 @@ String REPL::eval_code_block(const String& p_code_block) {
 		script_text += "\t" + lines[i] + "\n";
 	}
 
-	return run_script_code(script_text);
+	return run_script_code_and_convert_result_to_string(script_text);
 }
 
 // Adapted from marynate's
@@ -62,7 +68,35 @@ String REPL::build_script(const String& p_text) {
 	return script_text;
 }
 
-String REPL::run_script_code(const String& p_script_code) {
+Variant REPL::run_script_code(const String& p_script_code) {
+
+	Ref<Script> script = Ref<Script>(m_pScriptLanguage->create_script());
+	script->set_source_code(build_script(p_script_code));
+	//ERR_FAIL_COND(!script.is_valid());
+	Error error = script->reload();
+	if (error) {
+
+		print_line("Error: " + p_script_code);
+		return "[ERROR: Call to reload() failed.]";
+	}
+
+	ScriptInstance* pInstance = script->instance_create(this);
+
+	Variant::CallError callError;
+	Variant result = pInstance->call("e", NULL, 0, callError);
+	// memdelete(pInstance); // FIXME Memory leak here.
+	if (callError.error == Variant::CallError::CALL_OK) {
+
+		return result;
+	}
+
+	print_line("Error: calling the function returned Error Code: " + itos(callError.error));
+	memdelete(pInstance);
+
+	return "[ERROR: Running the code returned Error Code: " + itos(callError.error) + "]";
+}
+
+String REPL::run_script_code_and_convert_result_to_string(const String& p_script_code) {
 
 	Ref<Script> script = Ref<Script>(m_pScriptLanguage->create_script());
 	script->set_source_code(build_script(p_script_code));
