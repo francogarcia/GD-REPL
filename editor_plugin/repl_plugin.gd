@@ -16,6 +16,8 @@ func _ready():
     init()
     set_focus_to_code_input()
 
+    run_examples()
+
     pass
 
 
@@ -71,9 +73,29 @@ func _on_ButtonCodeBlock_pressed():
     var results = m_REPL.eval_code_block(code_block)
     repl_print(results)
 
-#    print(m_REPL.eval_code_block("""
-#for i in range(0, 2):
-#	for j in range(3, 5):
-#		print(j)
-#	print(i)
-#"""))
+
+func run_examples():
+    # eval()
+    print("EVAL()")
+    var v1 = [1, 2, 3]
+    print(typeof(v1))
+
+    var v2 = m_REPL.eval("[1, 2, 3]")
+    print(typeof(v2))
+    for i in v2:
+        print(i, " ")
+
+    # eval_expression()
+    print("\n#####\n")
+    print("EVAL_EXPRESSION()")
+    print(m_REPL.eval_expression("10 * cos(PI)"))
+
+    #eval_code_block()
+    print("\n#####\n")
+    print("EVAL_CODE_BLOCK()")
+    print(m_REPL.eval_code_block("""
+for i in range(0, 2):
+	for j in range(3, 5):
+		print(j)
+	print(i)
+"""))
