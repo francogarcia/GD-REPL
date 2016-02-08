@@ -46,7 +46,7 @@ String REPL::eval_code_block(const String& p_code_block) {
 		script_text += "\t" + lines[i] + "\n";
 	}
 
-	return run_script_code_and_convert_result_to_string(script_text);
+	return run_script_code(script_text);
 }
 
 // Adapted from marynate's
@@ -55,13 +55,10 @@ String REPL::eval_code_block(const String& p_code_block) {
 // https://github.com/godotengine/godot/pull/453/files
 String REPL::build_script(const String& p_text) {
 
-	String script_text = "tool\nvar this\nfunc set_this(p_this):\n\tthis=p_this\nfunc e():\n";
+	String script_text = "tool\n\nfunc e():\n";
 	//script_text += p_text.strip_edges();
 	script_text += p_text;
 	script_text += "\n\n";
-
-	// Convert the result to string.
-	script_text += "func s():\n\treturn str(e())\n";
 
 	//print_line(script_text);
 
@@ -84,34 +81,6 @@ Variant REPL::run_script_code(const String& p_script_code) {
 
 	Variant::CallError callError;
 	Variant result = pInstance->call("e", NULL, 0, callError);
-	// memdelete(pInstance); // FIXME Memory leak here.
-	if (callError.error == Variant::CallError::CALL_OK) {
-
-		return result;
-	}
-
-	print_line("Error: calling the function returned Error Code: " + itos(callError.error));
-	memdelete(pInstance);
-
-	return "[ERROR: Running the code returned Error Code: " + itos(callError.error) + "]";
-}
-
-String REPL::run_script_code_and_convert_result_to_string(const String& p_script_code) {
-
-	Ref<Script> script = Ref<Script>(m_pScriptLanguage->create_script());
-	script->set_source_code(build_script(p_script_code));
-	//ERR_FAIL_COND(!script.is_valid());
-	Error error = script->reload();
-	if (error) {
-
-		print_line("Error: " + p_script_code);
-		return "[ERROR: Call to reload() failed.]";
-	}
-
-	ScriptInstance* pInstance = script->instance_create(this);
-
-	Variant::CallError callError;
-	String result = pInstance->call("s", NULL, 0, callError);
 	// memdelete(pInstance); // FIXME Memory leak here.
 	if (callError.error == Variant::CallError::CALL_OK) {
 

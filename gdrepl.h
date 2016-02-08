@@ -23,8 +23,8 @@ public:
 
 	Variant eval(const String& p_expression);
 
-	String eval_expression(const String& p_expression);
-	String eval_code_block(const String& p_code_block);
+	Variant eval_expression(const String& p_expression);
+	Variant eval_code_block(const String& p_code_block);
 
 private:
 	// Build a fake tool script to run the expression in a function.
@@ -33,7 +33,6 @@ private:
 	String build_script(const String& p_text);
 
 	Variant run_script_code(const String& p_script_code);
-	String run_script_code_and_convert_result_to_string(const String& p_script_code);
 };
 
 #endif
