@@ -28,8 +28,8 @@ public:
 
 private:
 	// Build a fake tool script to run the expression in a function.
-	// The expression is used as the return value of e(), then converted
-	// to string in s(), which is called in REPL::eval().
+	// The expression is used as the return value of e(), which is called in
+	// REPL::eval().
 	String build_script(const String& p_text, const bool p_enable_tool_mode = false);
 
 	Variant run_script_code(const String& p_script_code);
