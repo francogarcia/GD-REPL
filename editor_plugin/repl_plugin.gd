@@ -98,4 +98,20 @@ for i in range(0, 2):
 	for j in range(3, 5):
 		print(j)
 	print(i)
+
+var v = []
+for i in range(0, 5):
+	v.push_back(i)
+print(str(v))
 """)))
+
+    #eval_code_block()
+    print("\n#####\n")
+    print("LOAD_FILE()")
+    if (m_REPL.load_file("res://example.gd") == OK):
+        print("File loaded.")
+        m_REPL.print_subclasses()
+        m_REPL.print_constants()
+        m_REPL.print_members()
+        m_REPL.print_member_functions()
+

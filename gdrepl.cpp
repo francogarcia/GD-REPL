@@ -7,9 +7,17 @@
 
 void REPL::_bind_methods() {
 
+	ObjectTypeDB::bind_method("load_file", &REPL::load_file);
+	ObjectTypeDB::bind_method("reload", &REPL::reload);
+
 	ObjectTypeDB::bind_method("eval", &REPL::eval);
 	ObjectTypeDB::bind_method("eval_expression", &REPL::eval_expression);
 	ObjectTypeDB::bind_method("eval_code_block", &REPL::eval_code_block);
+
+	ObjectTypeDB::bind_method("print_subclasses", &REPL::print_subclasses);
+	ObjectTypeDB::bind_method("print_constants", &REPL::print_constants);
+	ObjectTypeDB::bind_method("print_members", &REPL::print_members);
+	ObjectTypeDB::bind_method("print_member_functions", &REPL::print_member_functions);
 }
 
 REPL::REPL() {
@@ -17,11 +25,31 @@ REPL::REPL() {
 	//GDScript gdScript;
 	//m_pScriptLanguage = gdScript.get_language();
 	m_pScriptLanguage = GDScriptLanguage::get_singleton();
+
+	// Loaded script.
+	m_pScript = Ref<Script>(m_pScriptLanguage->create_script());
 }
 
 REPL::~REPL() {
 
 	m_pScriptLanguage = NULL;
+	//m_pScript = NULL;
+}
+
+Error REPL::load_file(const String& p_filepath) {
+
+	Error error = ((Ref<GDScript>) m_pScript)->load_source_code(p_filepath);
+	if (error != OK) {
+
+		return error;
+	}
+
+	return reload();
+}
+
+Error REPL::reload() {
+
+	return m_pScript->reload();
 }
 
 Variant REPL::eval(const String& p_expression) {
@@ -29,12 +57,12 @@ Variant REPL::eval(const String& p_expression) {
 	return run_script_code("\treturn " + (p_expression.strip_edges()));
 }
 
-String REPL::eval_expression(const String& p_expression) {
+Variant REPL::eval_expression(const String& p_expression) {
 
-	return run_script_code_and_convert_result_to_string("\treturn " + (p_expression.strip_edges()));
+	return run_script_code("\treturn " + (p_expression.strip_edges()));
 }
 
-String REPL::eval_code_block(const String& p_code_block) {
+Variant REPL::eval_code_block(const String& p_code_block) {
 
 	String script_text = "";
 
@@ -97,4 +125,91 @@ Variant REPL::run_script_code(const String& p_script_code) {
 	memdelete(pInstance);
 
 	return "[ERROR: Running the code returned Error Code: " + itos(callError.error) + "]";
+}
+
+void REPL::print_subclasses() const {
+
+	const Map<StringName, Ref<GDScript> >& subclasses = ((Ref<GDScript>) m_pScript)->get_subclasses();
+	print_line("REPL SUBCLASSES");
+	print_line("KEY\tNODE TYPE\t (Size = " + itos(subclasses.size()) + ")");
+	for (const Map<StringName, Ref<GDScript> >::Element* pElement = subclasses.front();
+		 pElement;
+		 pElement = pElement->next()) {
+		const StringName& key = pElement->key();
+		const Ref<GDScript>& value = pElement->value();
+
+		print_line(String(key) + String("\t") + String(value->get_node_type()));
+	}
+}
+
+void REPL::print_constants() const {
+
+	const Map<StringName, Variant>& constants = ((Ref<GDScript>) m_pScript)->get_constants();
+	print_line("REPL CONSTANTS");
+	print_line("KEY\tVALUE\t (Size = " + itos(constants.size()) + ")");
+	for (const Map<StringName, Variant>::Element* pElement = constants.front();
+		 pElement;
+		 pElement = pElement->next()) {
+		const StringName& key = pElement->key();
+		const Variant& value = pElement->value();
+
+		//print_line(key.cast_to<String>() + String("\t") + value.cast_to<String>());
+		print_line(String(key) + String("\t") + String(value));
+	}
+}
+
+void REPL::print_members() const {
+
+	const Set<StringName>& members = ((Ref<GDScript>) m_pScript)->get_members();
+	print_line("REPL MEMBERS");
+	print_line("KEY\t (Size = " + itos(members.size()) + ")");
+	for (const Set<StringName>::Element* pElement = members.front();
+		 pElement;
+		 pElement = pElement->next()) {
+		const StringName& name = pElement->get();
+
+		print_line(String(name) + String("\t") + String("null")); //print the element
+
+		// Variant value;
+		// if (m_pScript->_get(name, value)) { // TODO _get() is protected. Create subclass.
+
+		//	print_line(String(name) + String("\t") + String("null")); //print the element
+		// } else {
+
+		//	print_line(String(name) + String("\t") + String(value)); //print the element
+		// }
+	}
+}
+
+void REPL::print_member_functions() const {
+
+	const String kArgumentsSeparator = ", ";
+
+	const Map<StringName, GDFunction>& member_functions = ((Ref<GDScript>) m_pScript)->get_member_functions();
+	print_line("REPL MEMBER FUNCTIONS");
+	print_line("KEY\tReturn Type\tArguments\t (Size = " + itos(member_functions.size()) + ")");
+	for (const Map<StringName, GDFunction>::Element* pElement = member_functions.front();
+		 pElement;
+		 pElement = pElement->next()) {
+		const StringName& key = pElement->key();
+		const GDFunction& value = pElement->value();
+
+		//print_line(String(key) + String("\t") + String(value.get_source_code()));
+		int arguments_count = value.get_argument_count();
+		String arguments = "";
+		for (int i = 0; i < arguments_count; ++i) {
+
+			StringName argument_name = value.get_argument_name(i);
+			arguments += String(argument_name) + kArgumentsSeparator;
+		}
+		if (!arguments.empty()) {
+			// Remove the last separator.
+			const int kArgumentsSeparatorLength = kArgumentsSeparator.length();
+			arguments.erase(arguments.length() - kArgumentsSeparatorLength, kArgumentsSeparatorLength);
+		}
+
+		String return_type = "Variant";
+
+		print_line(String(key) + String("\t") + return_type + String("\t") + arguments);
+	}
 }

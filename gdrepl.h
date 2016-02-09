@@ -14,6 +14,9 @@ class REPL : public Reference {
 
 	ScriptLanguage* m_pScriptLanguage;
 
+	// Script used to store the REPL object's state.
+	Ref<Script> m_pScript;
+
 protected:
 	static void _bind_methods();
 
@@ -21,10 +24,21 @@ public:
 	REPL();
 	virtual ~REPL();
 
+	// Load a GDScript file, storing its content in the REPL's internal state.
+	Error load_file(const String& p_filepath);
+
+	// Load the script code.
+	Error reload();
+
 	Variant eval(const String& p_expression);
 
 	Variant eval_expression(const String& p_expression);
 	Variant eval_code_block(const String& p_code_block);
+
+	void print_subclasses() const;
+	void print_constants() const;
+	void print_members() const;
+	void print_member_functions() const;
 
 private:
 	// Build a fake tool script to run the expression in a function.
