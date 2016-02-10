@@ -6,7 +6,7 @@
 #include "ustring.h"
 #include "variant.h"
 
-#include "../gdscript/gd_functions.h"
+#include "modules/gdscript/gd_functions.h"
 
 /*************************************************************************/
 /*  test_gdscript.cpp                                                    */

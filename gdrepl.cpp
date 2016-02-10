@@ -2,8 +2,8 @@
 
 #include "gdrepl.h"
 
-// TODO Find a better way to reference the path of an optional module.
-#include "../gdscript/gd_script.h"
+//#ifdef GDSCRIPT_ENABLED
+#include "modules/gdscript/gd_script.h"
 
 static String _disassemble_addr(const Ref<GDScript>& p_script, const GDFunction& func, int p_addr, const Vector<String>& p_code);
 static void _dissassemble_function(const Ref<GDScript>& p_class, const GDFunction& p_function, const Vector<String> p_code);
@@ -244,3 +244,5 @@ void REPL::print_member_function_code(const String& p_function_name) const {
 		print_line(p_function_name + String(": member function not found."));
 	}
 }
+
+//#endif // GDSCRIPT_ENABLED
