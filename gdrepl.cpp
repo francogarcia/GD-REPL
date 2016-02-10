@@ -44,7 +44,7 @@ REPL::~REPL() {
 
 Error REPL::load_file(const String& p_filepath) {
 
-	Error error = ((Ref<GDScript>) m_pScript)->load_source_code(p_filepath);
+	Error error = static_cast<Ref<GDScript> >(m_pScript)->load_source_code(p_filepath);
 	if (error != OK) {
 
 		return error;
@@ -135,7 +135,7 @@ Variant REPL::run_script_code(const String& p_script_code) {
 
 void REPL::print_subclasses() const {
 
-	const Map<StringName, Ref<GDScript> >& subclasses = ((Ref<GDScript>) m_pScript)->get_subclasses();
+	const Map<StringName, Ref<GDScript> >& subclasses = static_cast<Ref<GDScript> >(m_pScript)->get_subclasses();
 	print_line("REPL SUBCLASSES");
 	print_line("KEY\tNODE TYPE\t (Size = " + itos(subclasses.size()) + ")");
 	for (const Map<StringName, Ref<GDScript> >::Element* pElement = subclasses.front();
@@ -150,7 +150,7 @@ void REPL::print_subclasses() const {
 
 void REPL::print_constants() const {
 
-	const Map<StringName, Variant>& constants = ((Ref<GDScript>) m_pScript)->get_constants();
+	const Map<StringName, Variant>& constants = static_cast<Ref<GDScript> >(m_pScript)->get_constants();
 	print_line("REPL CONSTANTS");
 	print_line("KEY\tVALUE\t (Size = " + itos(constants.size()) + ")");
 	for (const Map<StringName, Variant>::Element* pElement = constants.front();
@@ -166,7 +166,7 @@ void REPL::print_constants() const {
 
 void REPL::print_members() const {
 
-	const Set<StringName>& members = ((Ref<GDScript>) m_pScript)->get_members();
+	const Set<StringName>& members = static_cast<Ref<GDScript> >(m_pScript)->get_members();
 	print_line("REPL MEMBERS");
 	print_line("KEY\tDEFAULT VALUE\t (Size = " + itos(members.size()) + ")");
 	for (const Set<StringName>::Element* pElement = members.front();
@@ -199,7 +199,7 @@ void REPL::print_member_functions() const {
 
 	const String kArgumentsSeparator = ", ";
 
-	const Map<StringName, GDFunction>& member_functions = ((Ref<GDScript>) m_pScript)->get_member_functions();
+	const Map<StringName, GDFunction>& member_functions = static_cast<Ref<GDScript> >(m_pScript)->get_member_functions();
 	print_line("REPL MEMBER FUNCTIONS");
 	print_line("KEY\tReturn Type\tArguments\t (Size = " + itos(member_functions.size()) + ")");
 	for (const Map<StringName, GDFunction>::Element* pElement = member_functions.front();
@@ -230,7 +230,7 @@ void REPL::print_member_functions() const {
 
 void REPL::print_member_function_code(const String& p_function_name) const {
 
-	const Map<StringName, GDFunction>& member_functions = ((Ref<GDScript>) m_pScript)->get_member_functions();
+	const Map<StringName, GDFunction>& member_functions = static_cast<Ref<GDScript> >(m_pScript)->get_member_functions();
 	const Map<StringName, GDFunction>::Element* pElement = member_functions.find(p_function_name);
 	if (pElement) {
 
