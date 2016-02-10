@@ -3,6 +3,7 @@ extends Node
 const kPi = 3.14159
 const kE  = 2.71828
 
+var m_DefaultValue = "This is a string."
 var m_Foo
 
 func _ready():

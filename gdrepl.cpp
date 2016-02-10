@@ -162,15 +162,23 @@ void REPL::print_members() const {
 
 	const Set<StringName>& members = ((Ref<GDScript>) m_pScript)->get_members();
 	print_line("REPL MEMBERS");
-	print_line("KEY\t (Size = " + itos(members.size()) + ")");
+	print_line("KEY\tDEFAULT VALUE\t (Size = " + itos(members.size()) + ")");
 	for (const Set<StringName>::Element* pElement = members.front();
 		 pElement;
 		 pElement = pElement->next()) {
 		const StringName& name = pElement->get();
 
-		print_line(String(name) + String("\t") + String("null")); //print the element
+		// Only works when TOOLS_ENABLED is defined.
+		Variant default_value;
+		if (m_pScript->get_property_default_value(name, default_value)) {
 
-		// Variant value;
+			print_line(String(name) + String("\t") + String(default_value));
+		} else {
+
+			print_line(String(name) + String("\t") + String("null"));
+		}
+
+		// Variant current value;
 		// if (m_pScript->_get(name, value)) { // TODO _get() is protected. Create subclass.
 
 		//	print_line(String(name) + String("\t") + String("null")); //print the element
