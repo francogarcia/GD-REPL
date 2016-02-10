@@ -40,6 +40,8 @@ public:
 	void print_members() const;
 	void print_member_functions() const;
 
+	void print_member_function_code(const String& p_function_name) const;
+
 private:
 	// Build a fake tool script to run the expression in a function.
 	// The expression is used as the return value of e(), which is called in

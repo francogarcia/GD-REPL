@@ -5,6 +5,11 @@
 // TODO Find a better way to reference the path of an optional module.
 #include "../gdscript/gd_script.h"
 
+static String _disassemble_addr(const Ref<GDScript>& p_script, const GDFunction& func, int p_addr, const Vector<String>& p_code);
+static void _dissassemble_function(const Ref<GDScript>& p_class, const GDFunction& p_function, const Vector<String> p_code);
+static void _disassemble_class(const Ref<GDScript>& p_class, const Vector<String>& p_code);
+#include "gdrepldisassemble.impl"
+
 void REPL::_bind_methods() {
 
 	ObjectTypeDB::bind_method("load_file", &REPL::load_file);
@@ -18,6 +23,7 @@ void REPL::_bind_methods() {
 	ObjectTypeDB::bind_method("print_constants", &REPL::print_constants);
 	ObjectTypeDB::bind_method("print_members", &REPL::print_members);
 	ObjectTypeDB::bind_method("print_member_functions", &REPL::print_member_functions);
+	ObjectTypeDB::bind_method("print_member_function_code", &REPL::print_member_function_code);
 }
 
 REPL::REPL() {
@@ -219,5 +225,22 @@ void REPL::print_member_functions() const {
 		String return_type = "Variant";
 
 		print_line(String(key) + String("\t") + return_type + String("\t") + arguments);
+	}
+}
+
+void REPL::print_member_function_code(const String& p_function_name) const {
+
+	const Map<StringName, GDFunction>& member_functions = ((Ref<GDScript>) m_pScript)->get_member_functions();
+	const Map<StringName, GDFunction>::Element* pElement = member_functions.find(p_function_name);
+	if (pElement) {
+
+		const GDFunction& function = pElement->value();
+		//print_line(function.get_source_code());
+		Vector<String> codeLines;
+		codeLines.push_back(m_pScript->get_source_code());
+		_dissassemble_function((Ref<GDScript>) m_pScript, function, codeLines);
+	} else {
+
+		print_line(p_function_name + String(": member function not found."));
 	}
 }
