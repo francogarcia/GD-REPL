@@ -87,7 +87,7 @@ Variant REPL::eval_code_block(const String& p_code_block) {
 // String PropertyValueEvaluator::_build_script(const String& p_text),
 // available in:
 // https://github.com/godotengine/godot/pull/453/files
-String REPL::build_script(const String& p_text, const bool p_enable_tool_mode) {
+String REPL::build_script(const String& p_text, const bool p_enable_tool_mode) const {
 	const String empty_lines = "\n\n";
 
 	String script_text = "";
