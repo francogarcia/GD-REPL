@@ -16,6 +16,8 @@ void REPL::_bind_methods() {
 	ObjectTypeDB::bind_method("reload", &REPL::reload);
 
 	ObjectTypeDB::bind_method("eval", &REPL::eval);
+	ObjectTypeDB::bind_method("eval_variable", &REPL::eval_variable);
+
 	ObjectTypeDB::bind_method("eval_expression", &REPL::eval_expression);
 	ObjectTypeDB::bind_method("eval_code_block", &REPL::eval_code_block);
 
@@ -26,7 +28,8 @@ void REPL::_bind_methods() {
 	ObjectTypeDB::bind_method("print_member_function_code", &REPL::print_member_function_code);
 }
 
-REPL::REPL() {
+REPL::REPL() : m_pScriptInstance(NULL),
+			   m_pScriptInstanceObject(NULL) {
 
 	//GDScript gdScript;
 	//m_pScriptLanguage = gdScript.get_language();
@@ -40,6 +43,15 @@ REPL::~REPL() {
 
 	m_pScriptLanguage = NULL;
 	//m_pScript = NULL;
+
+	if (m_pScriptInstance == NULL) {
+
+		memdelete(m_pScriptInstance);
+	}
+	if (m_pScriptInstanceObject == NULL) {
+
+		memdelete(m_pScriptInstanceObject);
+	}
 }
 
 Error REPL::load_file(const String& p_filepath) {
@@ -55,12 +67,90 @@ Error REPL::load_file(const String& p_filepath) {
 
 Error REPL::reload() {
 
-	return m_pScript->reload();
+	Error error = m_pScript->reload();
+	if (error != OK) {
+
+		return error;
+	}
+
+	String node_type = static_cast<Ref<GDScript> >(m_pScript)->get_node_type();
+	if (node_type.empty()) {
+
+		if (m_pScriptInstanceObject) {
+
+			memdelete(m_pScriptInstanceObject);
+		}
+		if (m_pScriptInstance) {
+
+			memdelete(m_pScriptInstanceObject);
+		}
+
+		m_pScriptInstanceObject = memnew(Node);
+		m_pScriptInstance = static_cast<Ref<GDScript> >(m_pScript)->instance_create(m_pScriptInstanceObject);
+	}
+
+	return OK;
 }
 
 Variant REPL::eval(const String& p_expression) {
 
-	return run_script_code("\treturn " + (p_expression.strip_edges()));
+	//return run_script_code("\treturn " + (p_expression.strip_edges()));
+	if (!m_pScriptInstance) {
+		if (!(static_cast<Ref<GDScript> >(m_pScript)->has_source_code())) {
+
+			return "[Error: there is not a script instance yet.]";
+		}
+
+		//m_pScriptInstance = static_cast<Ref<GDScript> >(m_pScript)->instance_create(this);
+		return "[Error: there is not a script instance yet.]";
+	}
+
+	return eval_variable(p_expression);
+
+	// Ref<Script> script = Ref<Script>(m_pScriptLanguage->create_script());
+	// script->set_source_code(build_script(p_expression));
+	// //ERR_FAIL_COND(!script.is_valid());
+	// Error error = script->reload();
+	// if (error) {
+
+	//	print_line("Error: " + p_script_code);
+	//	return "[ERROR: Call to reload() failed.]";
+	// }
+
+	// if (!m_pScriptInstance) {
+
+	//	m_pScriptInstance = script->instance_create(this);
+	// } else {
+
+	//	// Figure out how to update an existing function.
+	// }
+
+	// Variant::CallError callError;
+	// Variant result = m_pScriptInstance->call("e", NULL, 0, callError);
+	// // memdelete(pInstance); // FIXME Memory leak here.
+	// if (callError.error == Variant::CallError::CALL_OK) {
+
+	//	return result;
+	// }
+
+	// return "[ERROR: Running the code returned Error Code: " + itos(callError.error) + "]";
+}
+
+Variant REPL::eval_variable(const String& p_variable) {
+
+	if (!m_pScriptInstance) {
+
+		return "[ERROR: Script was not defined yet]";
+		//return NULL;
+	}
+
+	Variant value;
+	if (!m_pScriptInstance->get(p_variable, value)) {
+
+		return "[ERROR: Variable was not found]";
+	}
+
+	return value;
 }
 
 Variant REPL::eval_expression(const String& p_expression) {

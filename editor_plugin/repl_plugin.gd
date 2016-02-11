@@ -75,20 +75,18 @@ func _on_ButtonCodeBlock_pressed():
 
 
 func run_examples():
-	# eval()
-	print("EVAL()")
-	var v1 = [1, 2, 3]
-	print(typeof(v1))
-
-	var v2 = m_REPL.eval("[1, 2, 3]")
-	print(typeof(v2))
-	for i in v2:
-		print(i, " ")
-
 	# eval_expression()
 	print("\n#####\n")
 	print("EVAL_EXPRESSION()")
 	print(str(m_REPL.eval_expression("10 * cos(PI)")))
+
+	var v1 = [1, 2, 3]
+	print(typeof(v1))
+
+	var v2 = m_REPL.eval_expression("[1, 2, 3]")
+	print(typeof(v2))
+	for i in v2:
+		print(i, " ")
 
 	#eval_code_block()
 	print("\n#####\n")
@@ -115,3 +113,9 @@ print(str(v))
 		m_REPL.print_members()
 		m_REPL.print_member_functions()
 		m_REPL.print_member_function_code("print_constants")
+
+	print("\n#####\n")
+	print("EVAL_VARIABLE()")
+	print(m_REPL.eval_variable("m_DefaultValue"))
+	print(m_REPL.eval_variable("m_Foo"))
+	print(m_REPL.eval("m_Foo"))

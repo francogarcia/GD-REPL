@@ -5,6 +5,7 @@
 
 #include "map.h"
 #include "reference.h"
+#include "scene/main/node.h"
 #include "script_language.h"
 #include "ustring.h"
 #include "variant.h"
@@ -16,6 +17,9 @@ class REPL : public Reference {
 
 	// Script used to store the REPL object's state.
 	Ref<Script> m_pScript;
+
+	ScriptInstance* m_pScriptInstance;
+	Node* m_pScriptInstanceObject;
 
 protected:
 	static void _bind_methods();
@@ -31,6 +35,7 @@ public:
 	Error reload();
 
 	Variant eval(const String& p_expression);
+	Variant eval_variable(const String& p_variable);
 
 	Variant eval_expression(const String& p_expression);
 	Variant eval_code_block(const String& p_code_block);
