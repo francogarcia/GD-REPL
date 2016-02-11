@@ -17,6 +17,7 @@ void REPL::_bind_methods() {
 
 	ObjectTypeDB::bind_method("eval", &REPL::eval);
 	ObjectTypeDB::bind_method("eval_variable", &REPL::eval_variable);
+	ObjectTypeDB::bind_method("eval_function_call", &REPL::eval_function_call);
 
 	ObjectTypeDB::bind_method("eval_expression", &REPL::eval_expression);
 	ObjectTypeDB::bind_method("eval_code_block", &REPL::eval_code_block);
@@ -141,7 +142,7 @@ Variant REPL::eval_variable(const String& p_variable) {
 	if (!m_pScriptInstance) {
 
 		return "[ERROR: Script was not defined yet]";
-		//return NULL;
+		//return Variant::NIL;
 	}
 
 	Variant value;
@@ -151,6 +152,61 @@ Variant REPL::eval_variable(const String& p_variable) {
 	}
 
 	return value;
+}
+
+Variant REPL::eval_function_call(const String& p_function_call) {
+
+	int first_bracket = p_function_call.find("(");
+	int last_bracket = p_function_call.find_last(")");
+	String parameters = p_function_call.substr(first_bracket + 1, // 1: Skip the bracket.
+											   last_bracket - first_bracket - 1);
+
+	Vector<String> arguments_vector = parameters.split(",", false);
+	int arguments_count = arguments_vector.size();
+
+	String method = p_function_call.substr(0, first_bracket);
+
+	String args = "Args: ";
+	for (int i = 0; i < arguments_count; ++i) {
+
+		args += arguments_vector[i].strip_edges() + ", ";
+		// args += eval_expression(arguments_vector[i]) + ", ";
+		// args += eval(arguments_vector[i].strip_edges()) + ", ";
+	}
+
+	Variant** arguments = NULL;
+	if (arguments_count > 0) {
+
+		// TODO Maybe alloc a single array, and just point to the elements using offsets.
+		arguments = memnew_arr(Variant*, arguments_count);
+		for (int i = 0; i < arguments_count; ++i) {
+
+			arguments[i] = memnew_arr(Variant, 1);
+			arguments[i][0] = eval_expression(arguments_vector[i]);
+			// arguments[i][0] = eval(arguments_vector[i].strip_edges()) + ", ";
+		}
+	}
+
+	Variant::CallError callError;
+	Variant result;
+	result = m_pScriptInstance->call(method, (const Variant**) arguments, arguments_count, callError);
+
+	// Clean-up.
+	if (arguments != NULL) {
+
+		for (int i = 0; i < arguments_count; ++i) {
+
+			memdelete_arr(arguments[i]);
+		}
+		memdelete_arr(arguments);
+	}
+
+	if (callError.error != Variant::CallError::CALL_OK) {
+
+		return "[ERROR: Incorrect function call]";
+	}
+
+	return result;
 }
 
 Variant REPL::eval_expression(const String& p_expression) {

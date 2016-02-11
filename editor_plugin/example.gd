@@ -18,6 +18,9 @@ func get_foo():
 func set_foo(newValue):
 	m_Foo = newValue
 
+func get_pi():
+	return kPi
+
 func print_constants(bPrintPi, bPrintE):
 	if (bPrintPi):
 		print(kPi)

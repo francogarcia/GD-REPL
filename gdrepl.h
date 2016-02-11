@@ -36,6 +36,7 @@ public:
 
 	Variant eval(const String& p_expression);
 	Variant eval_variable(const String& p_variable);
+	Variant eval_function_call(const String& p_function_call);
 
 	Variant eval_expression(const String& p_expression);
 	Variant eval_code_block(const String& p_code_block);
