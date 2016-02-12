@@ -3,7 +3,6 @@
 #include "gdrepl.h"
 
 //#ifdef GDSCRIPT_ENABLED
-#include "modules/gdscript/gd_script.h"
 
 static String _disassemble_addr(const Ref<GDScript>& p_script, const GDFunction& func, int p_addr, const Vector<String>& p_code);
 static void _dissassemble_function(const Ref<GDScript>& p_class, const GDFunction& p_function, const Vector<String> p_code);
@@ -13,6 +12,7 @@ static void _disassemble_class(const Ref<GDScript>& p_class, const Vector<String
 void REPL::_bind_methods() {
 
 	ObjectTypeDB::bind_method("load_file", &REPL::load_file);
+	ObjectTypeDB::bind_method("load_string", &REPL::load_string);
 	ObjectTypeDB::bind_method("reload", &REPL::reload);
 
 	ObjectTypeDB::bind_method("eval", &REPL::eval);
@@ -63,6 +63,59 @@ Error REPL::load_file(const String& p_filepath) {
 		return error;
 	}
 
+	const String base_path = "";
+	const bool just_validate = false;
+	const String self_path = "";
+	const bool for_completion = false;
+	error = m_Parser.parse(static_cast<Ref<GDScript> >(m_pScript)->get_source_code(),
+						   base_path,
+						   just_validate,
+						   self_path,
+						   for_completion);
+	if (error != OK) {
+
+		return error;
+	}
+
+	return reload();
+}
+
+Error REPL::load_string(const String& p_code) {
+
+	const String base_path = "";
+	const bool just_validate = false;
+	const String self_path = "";
+	const bool for_completion = false;
+	Error error = m_Parser.parse(p_code,
+								 base_path,
+								 just_validate,
+								 self_path,
+								 for_completion);
+	if (error != OK) {
+
+		print_line("[ERROR Failed to parse the input code.]");
+
+		return error;
+	}
+
+	//const GDParser::Node* root = m_Parser.get_parse_tree();
+	//const GDParser::ClassNode* class_node = static_cast<const GDParser::ClassNode*>(root);
+
+	// TODO GDCompiler::parse() does not set the source code.
+	// Thus, the following code does nothing special.
+
+	// error = m_Compiler.compile(&m_Parser, static_cast<GDScript*>(m_pScript.ptr()));
+	// if (error != OK) {
+
+	//	print_line("[ERROR Failed to compile the input code.]");
+
+	//	return error;
+	// }
+
+	// Due to the above issue, we just load the source ourselves and reload().
+	static_cast<Ref<GDScript> >(m_pScript)->set_source_code(p_code);
+	//print_line(String("Source code:\n") + static_cast<Ref<GDScript> >(m_pScript)->get_source_code());
+
 	return reload();
 }
 
@@ -75,6 +128,8 @@ Error REPL::reload() {
 	}
 
 	String node_type = static_cast<Ref<GDScript> >(m_pScript)->get_node_type();
+	// TODO Godot should return the correct value here.
+	// However, at this moment, it always returns "".
 	if (node_type.empty()) {
 
 		if (m_pScriptInstanceObject) {
@@ -161,6 +216,7 @@ Variant REPL::eval_function_call(const String& p_function_call) {
 	String parameters = p_function_call.substr(first_bracket + 1, // 1: Skip the bracket.
 											   last_bracket - first_bracket - 1);
 
+	// TODO Consider vectors and function calls as arguments.
 	Vector<String> arguments_vector = parameters.split(",", false);
 	int arguments_count = arguments_vector.size();
 
@@ -183,7 +239,7 @@ Variant REPL::eval_function_call(const String& p_function_call) {
 
 			arguments[i] = memnew_arr(Variant, 1);
 			arguments[i][0] = eval_expression(arguments_vector[i]);
-			// arguments[i][0] = eval(arguments_vector[i].strip_edges()) + ", ";
+			// TODO arguments[i][0] = eval(arguments_vector[i].strip_edges()) + ", ";
 		}
 	}
 

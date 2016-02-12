@@ -3,12 +3,19 @@
 #ifndef GD_REPL_H
 #define GD_REPL_H
 
+//#ifdef GDSCRIPT_ENABLED
+
 #include "map.h"
 #include "reference.h"
-#include "scene/main/node.h"
 #include "script_language.h"
 #include "ustring.h"
 #include "variant.h"
+
+#include "modules/gdscript/gd_compiler.h"
+#include "modules/gdscript/gd_parser.h"
+#include "modules/gdscript/gd_script.h"
+
+#include "scene/main/node.h"
 
 class REPL : public Reference {
 	OBJ_TYPE(REPL, Reference);
@@ -21,6 +28,9 @@ class REPL : public Reference {
 	ScriptInstance* m_pScriptInstance;
 	Node* m_pScriptInstanceObject;
 
+	GDParser m_Parser;
+	GDCompiler m_Compiler;
+
 protected:
 	static void _bind_methods();
 
@@ -30,6 +40,8 @@ public:
 
 	// Load a GDScript file, storing its content in the REPL's internal state.
 	Error load_file(const String& p_filepath);
+
+	Error load_string(const String& p_code);
 
 	// Load the script code.
 	Error reload();
@@ -57,4 +69,6 @@ private:
 	Variant run_script_code(const String& p_script_code);
 };
 
-#endif
+//#endif // GDSCRIPT_ENABLED
+
+#endif // GD_REPL_H
