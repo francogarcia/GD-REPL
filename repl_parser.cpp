@@ -729,6 +729,10 @@ REPLParser::Node* REPLParser::_parse_expression(Node *p_parent,bool p_static,boo
 		} else {
 
 			//find list [ or find dictionary {
+			if (repl_ignore_error) {
+
+				return NULL;
+			}
 
 			print_line("found bug?");
 
@@ -737,6 +741,12 @@ REPLParser::Node* REPLParser::_parse_expression(Node *p_parent,bool p_static,boo
 		}
 
 		if (!expr) {
+
+			if (repl_ignore_error) {
+
+				return NULL;
+			}
+
 			ERR_EXPLAIN("REPLParser bug, couldn't figure out what expression is..");
 			ERR_FAIL_COND_V(!expr,NULL);
 		}
@@ -3102,6 +3112,57 @@ Error REPLParser::_parse(const String& p_base_path) {
 	return OK;
 }
 
+Error REPLParser::_parse_expression(const String& p_base_path) {
+
+
+	base_path=p_base_path;
+
+	clear();
+
+	// Assume expression.
+	Node* parent = NULL;
+	bool is_static = false;
+	bool allow_assign = false;
+
+	Node* expression = _parse_expression(parent, is_static, allow_assign);
+
+	if (error_set) {
+
+		return ERR_PARSE_ERROR;
+	}
+
+	print_line("[REPLParser::_parse_expression(): expression]");
+
+	return OK;
+}
+
+Error REPLParser::_parse_block(const String& p_base_path) {
+
+
+	base_path=p_base_path;
+
+	clear();
+
+	// Assume block
+	BlockNode* block_node = alloc_node<BlockNode>();
+	block_node->parent_class = NULL;
+	block_node->parent_block = NULL;
+	current_block = block_node;
+
+	bool is_static = false;
+
+	_parse_block(block_node, is_static);
+
+	if (error_set) {
+
+		return ERR_PARSE_ERROR;
+	}
+
+	print_line("[_REPLParser::_parse_block(): block]");
+
+	return OK;
+}
+
 Error REPLParser::parse_bytecode(const Vector<uint8_t> &p_bytecode,const String& p_base_path, const String &p_self_path) {
 
 	for_completion=false;
@@ -3153,6 +3214,62 @@ Error REPLParser::parse(const String& p_code, const String& p_base_path, bool p_
 	return ret;
 }
 
+Error REPLParser::parse_expression(const String& p_code, const String& p_base_path, bool p_just_validate, const String &p_self_path,bool p_for_completion) {
+
+	repl_ignore_error = true;
+
+	completion_type=COMPLETION_NONE;
+	completion_node=NULL;
+	completion_class=NULL;
+	completion_function=NULL;
+	completion_block=NULL;
+	completion_found=false;
+	current_block=NULL;
+	current_class=NULL;
+
+	current_function=NULL;
+
+	self_path=p_self_path;
+	GDTokenizerText *tt = memnew( GDTokenizerText );
+	tt->set_code(p_code);
+
+	validating=p_just_validate;
+	for_completion=p_for_completion;
+	tokenizer=tt;
+	Error ret = _parse_expression(p_base_path);
+	memdelete(tt);
+	tokenizer=NULL;
+	return ret;
+}
+
+Error REPLParser::parse_block(const String& p_code, const String& p_base_path, bool p_just_validate, const String &p_self_path,bool p_for_completion) {
+
+	repl_ignore_error = true;
+
+	completion_type=COMPLETION_NONE;
+	completion_node=NULL;
+	completion_class=NULL;
+	completion_function=NULL;
+	completion_block=NULL;
+	completion_found=false;
+	current_block=NULL;
+	current_class=NULL;
+
+	current_function=NULL;
+
+	self_path=p_self_path;
+	GDTokenizerText *tt = memnew( GDTokenizerText );
+	tt->set_code(p_code);
+
+	validating=p_just_validate;
+	for_completion=p_for_completion;
+	tokenizer=tt;
+	Error ret = _parse_block(p_base_path);
+	memdelete(tt);
+	tokenizer=NULL;
+	return ret;
+}
+
 bool REPLParser::is_tool_script() const {
 
 	return (head && head->type==Node::TYPE_CLASS && static_cast<const ClassNode*>(head)->tool);
@@ -3164,6 +3281,8 @@ const REPLParser::Node *REPLParser::get_parse_tree() const {
 }
 
 void REPLParser::clear() {
+
+	repl_ignore_error = false;
 
 	while(list) {
 

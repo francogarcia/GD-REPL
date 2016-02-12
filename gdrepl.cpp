@@ -98,9 +98,6 @@ Error REPL::load_string(const String& p_code) {
 		return error;
 	}
 
-	//const GDParser::Node* root = m_Parser.get_parse_tree();
-	//const GDParser::ClassNode* class_node = static_cast<const GDParser::ClassNode*>(root);
-
 	// TODO GDCompiler::parse() does not set the source code.
 	// Thus, the following code does nothing special.
 
@@ -148,9 +145,9 @@ Error REPL::reload() {
 	return OK;
 }
 
-Variant REPL::eval(const String& p_expression) {
+Variant REPL::eval(const String& p_code) {
 
-	//return run_script_code("\treturn " + (p_expression.strip_edges()));
+	//return run_script_code("\treturn " + (p_code.strip_edges()));
 	if (!m_pScriptInstance) {
 		if (!(static_cast<Ref<GDScript> >(m_pScript)->has_source_code())) {
 
@@ -161,35 +158,88 @@ Variant REPL::eval(const String& p_expression) {
 		return "[Error: there is not a script instance yet.]";
 	}
 
-	return eval_variable(p_expression);
+	REPLParser parser;
+	//const String code = build_script(p_code); // Godot assumes classes when parsing.
+	const String code = p_code;
+	const String base_path = "";
+	const bool just_validate = false;
+	const String self_path = "";
+	const bool for_completion = false;
 
-	// Ref<Script> script = Ref<Script>(m_pScriptLanguage->create_script());
-	// script->set_source_code(build_script(p_expression));
-	// //ERR_FAIL_COND(!script.is_valid());
-	// Error error = script->reload();
-	// if (error) {
+	Error error = parser.parse(code,
+							   base_path,
+							   just_validate,
+							   self_path,
+							   for_completion);
+	if (error != OK) {
+		//print_line("[Error: cannot parse the input: " + parser.get_error() + ".]");
 
-	//	print_line("Error: " + p_script_code);
-	//	return "[ERROR: Call to reload() failed.]";
-	// }
+		error = parser.parse_expression(code,
+										base_path,
+										just_validate,
+										self_path,
+										for_completion);
+		if (error != OK) {
+			//print_line("[Error: cannot parse the input: " + parser.get_error() + ".]");
 
-	// if (!m_pScriptInstance) {
+			// error = parser.parse_block(code,
+			//						   base_path,
+			//						   just_validate,
+			//						   self_path,
+			//						   for_completion);
+			// if (error != OK) {
 
-	//	m_pScriptInstance = script->instance_create(this);
-	// } else {
+			//	return "[Error: cannot parse the input: " + parser.get_error() + ".]";
+			//	//return error;
+			// }
 
-	//	// Figure out how to update an existing function.
-	// }
+			// Try to run as a code block, as everything else failed.
+			return eval_code_block(p_code);
+		}
+	}
 
-	// Variant::CallError callError;
-	// Variant result = m_pScriptInstance->call("e", NULL, 0, callError);
-	// // memdelete(pInstance); // FIXME Memory leak here.
-	// if (callError.error == Variant::CallError::CALL_OK) {
+	// GDParser -> REPLParser
+	const REPLParser::Node* root = parser.get_parse_tree();
+	//const REPLParser::ClassNode* class_node = static_cast<const REPLParser::ClassNode*>(root);
+	switch (root->type) {
+	case REPLParser::Node::TYPE_IDENTIFIER: {
 
-	//	return result;
-	// }
+		return eval_variable(p_code);
+	} break;
 
-	// return "[ERROR: Running the code returned Error Code: " + itos(callError.error) + "]";
+	case REPLParser::Node::TYPE_CONSTANT:
+	case REPLParser::Node::TYPE_ARRAY:
+	case REPLParser::Node::TYPE_DICTIONARY: {
+
+		return eval_expression(p_code);
+	} break;
+
+	case REPLParser::Node::TYPE_BLOCK: {
+
+		return eval_code_block(p_code);
+	} break;
+
+	case REPLParser::Node::TYPE_OPERATOR:
+	case REPLParser::Node::TYPE_FUNCTION:
+	case REPLParser::Node::TYPE_BUILT_IN_FUNCTION: {
+
+		return eval_function_call(p_code);
+	}
+
+	case REPLParser::Node::TYPE_CONTROL_FLOW:
+	case REPLParser::Node::TYPE_ASSERT:
+	case REPLParser::Node::TYPE_BREAKPOINT:
+
+	case REPLParser::Node::TYPE_TYPE:
+	case REPLParser::Node::TYPE_SELF:
+	case REPLParser::Node::TYPE_CLASS:
+	case REPLParser::Node::TYPE_LOCAL_VAR:
+	case REPLParser::Node::TYPE_NEWLINE:
+	default: {
+
+		return "[Error: cannot evaluate this code yet.]";
+	} break;
+	}
 }
 
 Variant REPL::eval_variable(const String& p_variable) {
@@ -275,12 +325,13 @@ Variant REPL::eval_code_block(const String& p_code_block) {
 	String script_text = "";
 
 	// Append a tab for every line of the code block.
-	Vector<String> lines = p_code_block.strip_edges().split("\n");
-	int total_lines = lines.size();
-	for (int i = 0; i < total_lines; i++) {
+	// Vector<String> lines = p_code_block.strip_edges().split("\n");
+	// int total_lines = lines.size();
+	// for (int i = 0; i < total_lines; i++) {
 
-		script_text += "\t" + lines[i] + "\n";
-	}
+	//	script_text += "\t" + lines[i] + "\n";
+	// }
+	script_text = p_code_block;
 
 	return run_script_code(script_text);
 }

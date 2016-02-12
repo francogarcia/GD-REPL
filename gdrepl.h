@@ -17,6 +17,8 @@
 
 #include "scene/main/node.h"
 
+#include "repl_parser.h"
+
 class REPL : public Reference {
 	OBJ_TYPE(REPL, Reference);
 
@@ -46,7 +48,7 @@ public:
 	// Load the script code.
 	Error reload();
 
-	Variant eval(const String& p_expression);
+	Variant eval(const String& p_code);
 	Variant eval_variable(const String& p_variable);
 	Variant eval_function_call(const String& p_function_call);
 

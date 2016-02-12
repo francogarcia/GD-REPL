@@ -91,17 +91,18 @@ func run_examples():
 	#eval_code_block()
 	print("\n#####\n")
 	print("EVAL_CODE_BLOCK()")
-	print(str(m_REPL.eval_code_block("""
-for i in range(0, 2):
-	for j in range(3, 5):
-		print(j)
-	print(i)
+	var code_block = """
+	for i in range(0, 2):
+		for j in range(3, 5):
+			print(j)
+		print(i)
 
-var v = []
-for i in range(0, 5):
-	v.push_back(i)
-print(str(v))
-""")))
+	var v = []
+	for i in range(0, 5):
+		v.push_back(i)
+	print(str(v))
+"""
+	print(str(m_REPL.eval_code_block(code_block)))
 
 #	print("\n#####\n")
 #	print("LOAD_FILE()")
@@ -135,10 +136,19 @@ print(str(v))
 	print(m_REPL.eval_variable("m_DefaultValue"))
 	print(m_REPL.eval_variable("m_Foo"))
 	print(m_REPL.eval_function_call("_ready()"))
-	print(m_REPL.eval("m_Foo"))
+	print(m_REPL.eval_variable("m_Foo"))
 	print(m_REPL.eval_function_call("set_foo(cos(PI * (1 + 2)))"))
 	#print(m_REPL.eval_function_call("set_foo([1, 2, 3])"))
 	# print(m_REPL.eval_function_call("set_foo({\"foo\" : \"bar\"})"))
 	print(m_REPL.eval_function_call("get_foo()"))
 	print(m_REPL.eval_function_call("get_pi()"))
 	# print(m_REPL.eval_function_call("set_foo(123, ( 111 + 222 ) , 789)"))
+
+	print("\n#####\n")
+	print("EVAL()")
+	print(m_REPL.eval("1 + 2"))
+	print(m_REPL.eval("[1, 2, 3]"))
+	print(m_REPL.eval("PI"))
+	print(m_REPL.eval(code_block)) # Crashes when using parse_code_block(); check indentation.
+	# print(m_REPL.eval("cos(0)"))
+	# print(m_REPL.eval("cos(PI)"))

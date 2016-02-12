@@ -428,6 +428,8 @@ private:
 
 	PropertyInfo current_export;
 
+	bool repl_ignore_error;
+
 	void _set_error(const String& p_error, int p_line=-1, int p_column=-1);
 	bool _recover_from_completion();
 
@@ -445,6 +447,8 @@ private:
 	bool _end_statement();
 
 	Error _parse(const String& p_base_path);
+	Error _parse_expression(const String& p_base_path);
+	Error _parse_block(const String& p_base_path);
 
 public:
 
@@ -453,6 +457,9 @@ public:
 	int get_error_column() const;
 	Error parse(const String& p_code, const String& p_base_path="", bool p_just_validate=false,const String& p_self_path="",bool p_for_completion=false);
 	Error parse_bytecode(const Vector<uint8_t> &p_bytecode,const String& p_base_path="",const String& p_self_path="");
+
+	Error parse_expression(const String& p_code, const String& p_base_path="", bool p_just_validate=false,const String& p_self_path="",bool p_for_completion=false);
+	Error parse_block(const String& p_code, const String& p_base_path="", bool p_just_validate=false,const String& p_self_path="",bool p_for_completion=false);
 
 	bool is_tool_script() const;
 	const Node *get_parse_tree() const;
