@@ -2,7 +2,7 @@
 
 #include "gdrepl.h"
 
-//#ifdef GDSCRIPT_ENABLED
+#ifdef GDSCRIPT_ENABLED
 
 static String _disassemble_addr(const Ref<GDScript>& p_script, const GDFunction& func, int p_addr, const Vector<String>& p_code);
 static void _dissassemble_function(const Ref<GDScript>& p_class, const GDFunction& p_function, const Vector<String> p_code);
@@ -447,4 +447,4 @@ void REPL::print_member_function_code(const String& p_function_name) const {
 	}
 }
 
-//#endif // GDSCRIPT_ENABLED
+#endif // GDSCRIPT_ENABLED

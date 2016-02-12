@@ -3,7 +3,7 @@
 #ifndef GD_REPL_H
 #define GD_REPL_H
 
-//#ifdef GDSCRIPT_ENABLED
+#ifdef GDSCRIPT_ENABLED
 
 #include "map.h"
 #include "reference.h"
@@ -69,6 +69,6 @@ private:
 	Variant run_script_code(const String& p_script_code);
 };
 
-//#endif // GDSCRIPT_ENABLED
+#endif // GDSCRIPT_ENABLED
 
 #endif // GD_REPL_H
