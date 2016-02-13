@@ -5,6 +5,7 @@
 
 #ifdef GDSCRIPT_ENABLED
 
+#include "dictionary.h"
 #include "map.h"
 #include "reference.h"
 #include "script_language.h"
@@ -63,6 +64,11 @@ public:
 	void print_member_function_code(const String& p_function_name) const;
 
 private:
+	Variant eval_function_call_using_node(const REPLParser::FunctionNode* p_node);
+	//Variant eval_function_call_using_node(const REPLParser::BuiltInFunctionNode* p_node);
+
+	Variant eval_tree(const REPLParser::Node* p_node);
+
 	// Build a fake tool script to run the expression in a function.
 	// The expression is used as the return value of e(), which is called in
 	// REPL::eval().

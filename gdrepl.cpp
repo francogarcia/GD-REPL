@@ -200,47 +200,377 @@ Variant REPL::eval(const String& p_code) {
 
 	// GDParser -> REPLParser
 	const REPLParser::Node* root = parser.get_parse_tree();
-	//const REPLParser::ClassNode* class_node = static_cast<const REPLParser::ClassNode*>(root);
-	switch (root->type) {
+
+	return eval_tree(root);
+}
+
+Variant REPL::eval_tree(const REPLParser::Node* p_node) {
+
+	switch (p_node->type) {
+
 	case REPLParser::Node::TYPE_IDENTIFIER: {
 
-		return eval_variable(p_code);
+		return eval_variable(static_cast<const REPLParser::IdentifierNode*>(p_node)->name);
 	} break;
 
-	case REPLParser::Node::TYPE_CONSTANT:
-	case REPLParser::Node::TYPE_ARRAY:
+	case REPLParser::Node::TYPE_CONSTANT: {
+
+		return static_cast<const REPLParser::ConstantNode*>(p_node)->value;
+	} break;
+
+	case REPLParser::Node::TYPE_LOCAL_VAR: {
+
+		return eval_variable(static_cast<const REPLParser::LocalVarNode*>(p_node)->name);
+	} break;
+
+	case REPLParser::Node::TYPE_ARRAY: {
+
+		Vector<Variant> array;
+
+		const Vector<REPLParser::Node*> elements = static_cast<const REPLParser::ArrayNode*>(p_node)->elements;
+		for (int i = 0; i < elements.size(); ++i) {
+
+			array.push_back(eval_tree(elements[i]));
+		}
+		return array;
+	} break;
+
 	case REPLParser::Node::TYPE_DICTIONARY: {
 
-		return eval_expression(p_code);
+		Dictionary dictionary;
+
+		const Vector<REPLParser::DictionaryNode::Pair> elements = static_cast<const REPLParser::DictionaryNode*>(p_node)->elements;
+		for (int i = 0; i < elements.size(); ++i) {
+
+			REPLParser::Node* key = elements[i].key;
+			REPLParser::Node* value = elements[i].value;
+			dictionary[eval_tree(key)] = eval_tree(value);
+		}
+		return dictionary;
+	} break;
+
+	case REPLParser::Node::TYPE_OPERATOR: {
+
+		const REPLParser::OperatorNode* gd_operator = (static_cast<const REPLParser::OperatorNode*>(p_node));
+
+		// Fetch the arguments.
+		const Vector<REPLParser::Node*> arguments = gd_operator->arguments;
+		Vector<Variant> arguments_values;
+		for (int i = 0; i < arguments.size(); ++i) {
+
+			print_line(itos(arguments[i]->type));
+			arguments_values.push_back(eval_tree(arguments[i]));
+		}
+
+		// Perform the operation.
+		Variant result;
+		switch (gd_operator->op) {
+
+// Emacs Lisp code to creating the operators case statements (C-x C-e to eval).
+
+// (defun franco/insert_case (value)
+//   (progn
+//     (insert "\t\tcase REPLParser::OperatorNode::")
+//     (insert value)
+//     (insert ": {\n\t\t} break;\n\n")))
+
+// (dolist (value '("OP_CALL"
+//                  "OP_PARENT_CALL"
+//                  "OP_YIELD"
+//                  "OP_EXTENDS"
+//                  "OP_INDEX"
+//                  "OP_INDEX_NAMED"
+//                  "OP_NEG"
+//                  "OP_NOT"
+//                  "OP_BIT_INVERT"
+//                  "OP_PREINC"
+//                  "OP_PREDEC"
+//                  "OP_INC"
+//                  "OP_DEC"
+//                  "OP_IN"
+//                  "OP_EQUAL"
+//                  "OP_NOT_EQUAL"
+//                  "OP_LESS"
+//                  "OP_LESS_EQUAL"
+//                  "OP_GREATER"
+//                  "OP_GREATER_EQUAL"
+//                  "OP_AND"
+//                  "OP_OR"
+//                  "OP_ADD"
+//                  "OP_SUB"
+//                  "OP_MUL"
+//                  "OP_DIV"
+//                  "OP_MOD"
+//                  "OP_SHIFT_LEFT"
+//                  "OP_SHIFT_RIGHT"
+//                  "OP_INIT_ASSIGN"
+//                  "OP_ASSIGN"
+//                  "OP_ASSIGN_ADD"
+//                  "OP_ASSIGN_SUB"
+//                  "OP_ASSIGN_MUL"
+//                  "OP_ASSIGN_DIV"
+//                  "OP_ASSIGN_MOD"
+//                  "OP_ASSIGN_SHIFT_LEFT"
+//                  "OP_ASSIGN_SHIFT_RIGHT"
+//                  "OP_ASSIGN_BIT_AND"
+//                  "OP_ASSIGN_BIT_OR"
+//                  "OP_ASSIGN_BIT_XOR"
+//                  "OP_BIT_AND"
+//                  "OP_BIT_OR"
+//                  "OP_BIT_XOR")
+//                )
+//   (franco/insert_case value))
+
+		case REPLParser::OperatorNode::OP_CALL: {
+
+			const Vector<REPLParser::Node*> arguments = gd_operator->arguments;
+			//Vector<Variant> argument_values;
+			for (int i = 0; i < arguments.size(); ++i) {
+
+				//print_line(itos(arguments[i]->type));
+				//return eval_tree(arguments[i]);
+			}
+		} break;
+
+		case REPLParser::OperatorNode::OP_PARENT_CALL: {
+
+		} break;
+
+		case REPLParser::OperatorNode::OP_YIELD: {
+
+		} break;
+
+		case REPLParser::OperatorNode::OP_EXTENDS: {
+
+		} break;
+
+		case REPLParser::OperatorNode::OP_INDEX: {
+
+		} break;
+
+		case REPLParser::OperatorNode::OP_INDEX_NAMED: {
+
+		} break;
+
+		case REPLParser::OperatorNode::OP_NEG: {
+
+		} break;
+
+		case REPLParser::OperatorNode::OP_NOT: {
+
+		} break;
+
+		case REPLParser::OperatorNode::OP_BIT_INVERT: {
+
+		} break;
+
+		case REPLParser::OperatorNode::OP_PREINC: {
+
+		} break;
+
+		case REPLParser::OperatorNode::OP_PREDEC: {
+
+		} break;
+
+		case REPLParser::OperatorNode::OP_INC: {
+
+		} break;
+
+		case REPLParser::OperatorNode::OP_DEC: {
+
+		} break;
+
+		case REPLParser::OperatorNode::OP_IN: {
+
+		} break;
+
+		case REPLParser::OperatorNode::OP_EQUAL: {
+
+		} break;
+
+		case REPLParser::OperatorNode::OP_NOT_EQUAL: {
+
+		} break;
+
+		case REPLParser::OperatorNode::OP_LESS: {
+
+		} break;
+
+		case REPLParser::OperatorNode::OP_LESS_EQUAL: {
+
+		} break;
+
+		case REPLParser::OperatorNode::OP_GREATER: {
+
+		} break;
+
+		case REPLParser::OperatorNode::OP_GREATER_EQUAL: {
+
+		} break;
+
+		case REPLParser::OperatorNode::OP_AND: {
+
+		} break;
+
+		case REPLParser::OperatorNode::OP_OR: {
+
+		} break;
+
+		case REPLParser::OperatorNode::OP_ADD: {
+
+		} break;
+
+		case REPLParser::OperatorNode::OP_SUB: {
+
+		} break;
+
+		case REPLParser::OperatorNode::OP_MUL: {
+
+		} break;
+
+		case REPLParser::OperatorNode::OP_DIV: {
+
+		} break;
+
+		case REPLParser::OperatorNode::OP_MOD: {
+
+		} break;
+
+		case REPLParser::OperatorNode::OP_SHIFT_LEFT: {
+
+		} break;
+
+		case REPLParser::OperatorNode::OP_SHIFT_RIGHT: {
+
+		} break;
+
+		case REPLParser::OperatorNode::OP_INIT_ASSIGN: {
+
+		} break;
+
+		case REPLParser::OperatorNode::OP_ASSIGN: {
+
+		} break;
+
+		case REPLParser::OperatorNode::OP_ASSIGN_ADD: {
+
+		} break;
+
+		case REPLParser::OperatorNode::OP_ASSIGN_SUB: {
+
+		} break;
+
+		case REPLParser::OperatorNode::OP_ASSIGN_MUL: {
+
+		} break;
+
+		case REPLParser::OperatorNode::OP_ASSIGN_DIV: {
+
+		} break;
+
+		case REPLParser::OperatorNode::OP_ASSIGN_MOD: {
+
+		} break;
+
+		case REPLParser::OperatorNode::OP_ASSIGN_SHIFT_LEFT: {
+
+		} break;
+
+		case REPLParser::OperatorNode::OP_ASSIGN_SHIFT_RIGHT: {
+
+		} break;
+
+		case REPLParser::OperatorNode::OP_ASSIGN_BIT_AND: {
+
+		} break;
+
+		case REPLParser::OperatorNode::OP_ASSIGN_BIT_OR: {
+
+		} break;
+
+		case REPLParser::OperatorNode::OP_ASSIGN_BIT_XOR: {
+
+		} break;
+
+		case REPLParser::OperatorNode::OP_BIT_AND: {
+
+		} break;
+
+		case REPLParser::OperatorNode::OP_BIT_OR: {
+
+		} break;
+
+		case REPLParser::OperatorNode::OP_BIT_XOR: {
+
+		} break;
+
+		default: {
+
+		} break;
+		}
+
+		// return result;
+		return "TODO: Operator\n";
+	} break;
+
+	case REPLParser::Node::TYPE_FUNCTION: {
+
+		return "TODO: Function\n";
+	} break;
+
+	case REPLParser::Node::TYPE_BUILT_IN_FUNCTION: {
+
+		return "TODO: Built-In Function\n";
 	} break;
 
 	case REPLParser::Node::TYPE_BLOCK: {
 
-		return eval_code_block(p_code);
+		return "TODO: BLOCK\n";
 	} break;
 
-	case REPLParser::Node::TYPE_OPERATOR:
-	case REPLParser::Node::TYPE_FUNCTION:
-	case REPLParser::Node::TYPE_BUILT_IN_FUNCTION: {
+	case REPLParser::Node::TYPE_CONTROL_FLOW: {
 
-		return eval_expression(p_code);
-		//return eval_function_call(p_code);
-	}
 
-	case REPLParser::Node::TYPE_CONTROL_FLOW:
-	case REPLParser::Node::TYPE_ASSERT:
-	case REPLParser::Node::TYPE_BREAKPOINT:
+		return "TODO: CONTROL FLOW\n";
+	} break;
 
-	case REPLParser::Node::TYPE_TYPE:
-	case REPLParser::Node::TYPE_SELF:
-	case REPLParser::Node::TYPE_CLASS:
-	case REPLParser::Node::TYPE_LOCAL_VAR:
+	case REPLParser::Node::TYPE_ASSERT: {
+
+
+		return "TODO: ASSERT\n";
+	} break;
+
+	case REPLParser::Node::TYPE_BREAKPOINT: {
+
+
+		return "TODO: BREAK POINT\n";
+	} break;
+
+	case REPLParser::Node::TYPE_TYPE: {
+
+
+		return "TODO: TYPE\n";
+	} break;
+
+	case REPLParser::Node::TYPE_SELF: {
+
+
+		return "TODO: SELF\n";
+	} break;
+
+	case REPLParser::Node::TYPE_CLASS: {
+
+		return "TODO: CLASS\n";
+	};
+
 	case REPLParser::Node::TYPE_NEWLINE:
 	default: {
 
-		return "[Error: cannot evaluate this code yet.]";
+		return "TODO: NEWLINE\n";
 	} break;
 	}
+
+	return "[ERROR: Could not determine the type]";
 }
 
 Variant REPL::eval_variable(const String& p_variable) {
@@ -315,6 +645,33 @@ Variant REPL::eval_function_call(const String& p_function_call) {
 
 	return result;
 }
+
+Variant REPL::eval_function_call_using_node(const REPLParser::FunctionNode* p_node) {
+
+	Vector<StringName> arguments_vector = p_node->arguments;
+	int arguments_count = arguments_vector.size();
+
+	const String method = p_node->name;
+
+	StringName args = "Args: ";
+	for (int i = 0; i < arguments_count; ++i) {
+
+		print_line(arguments_vector[i]);
+
+		//args += arguments_vector[i].strip_edges() + ", ";
+		// args += eval_expression(arguments_vector[i]) + ", ";
+		// args += eval(arguments_vector[i].strip_edges()) + ", ";
+	}
+
+	return "Soon...";
+}
+
+// Variant REPL::eval_function_call_using_node(const REPLParser::BuiltInFunctionNode* p_node) {
+
+//	GDFunctions::Function function = p_node->function;
+
+//	return "Soon..."
+// }
 
 Variant REPL::eval_expression(const String& p_expression) {
 
