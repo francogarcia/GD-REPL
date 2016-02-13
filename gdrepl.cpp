@@ -223,7 +223,8 @@ Variant REPL::eval(const String& p_code) {
 	case REPLParser::Node::TYPE_FUNCTION:
 	case REPLParser::Node::TYPE_BUILT_IN_FUNCTION: {
 
-		return eval_function_call(p_code);
+		return eval_expression(p_code);
+		//return eval_function_call(p_code);
 	}
 
 	case REPLParser::Node::TYPE_CONTROL_FLOW:

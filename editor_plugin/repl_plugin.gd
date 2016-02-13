@@ -150,5 +150,5 @@ func run_examples():
 	print(m_REPL.eval("[1, 2, 3]"))
 	print(m_REPL.eval("PI"))
 	print(m_REPL.eval(code_block)) # Crashes when using parse_code_block(); check indentation.
-	# print(m_REPL.eval("cos(0)"))
-	# print(m_REPL.eval("cos(PI)"))
+	print(m_REPL.eval("1 + cos(0)"))
+	print(m_REPL.eval("cos(PI)"))
