@@ -260,7 +260,7 @@ Variant REPL::eval_tree(const REPLParser::Node* p_node) {
 		Vector<Variant> arguments_values;
 		for (int i = 0; i < arguments.size(); ++i) {
 
-			print_line(itos(arguments[i]->type));
+			//print_line(itos(arguments[i]->type));
 			arguments_values.push_back(eval_tree(arguments[i]));
 		}
 
@@ -270,12 +270,15 @@ Variant REPL::eval_tree(const REPLParser::Node* p_node) {
 		switch (gd_operator->op) {
 
 // Emacs Lisp code to creating the operators case statements (C-x C-e to eval).
+// This works for all operators in: godot/core/variant.h -> Variant::Operator.
 
 // (defun franco/insert_case (value)
 //   (progn
 //     (insert "\t\tcase REPLParser::OperatorNode::")
 //     (insert value)
-//     (insert ": {\n\t\t} break;\n\n")))
+//     (insert ": {\n\t\t\tvariant_operator = Variant::")
+//     (insert value)
+//     (insert ";\n\t\t} break;\n\n")))
 
 // (dolist (value '("OP_CALL"
 //                  "OP_PARENT_CALL"
@@ -356,11 +359,11 @@ Variant REPL::eval_tree(const REPLParser::Node* p_node) {
 		} break;
 
 		case REPLParser::OperatorNode::OP_NEG: {
-
+			variant_operator = Variant::OP_NEGATE;
 		} break;
 
 		case REPLParser::OperatorNode::OP_NOT: {
-
+			variant_operator = Variant::OP_NOT;
 		} break;
 
 		case REPLParser::OperatorNode::OP_BIT_INVERT: {
@@ -384,69 +387,68 @@ Variant REPL::eval_tree(const REPLParser::Node* p_node) {
 		} break;
 
 		case REPLParser::OperatorNode::OP_IN: {
-
+			variant_operator = Variant::OP_IN;
 		} break;
 
 		case REPLParser::OperatorNode::OP_EQUAL: {
-
+			variant_operator = Variant::OP_EQUAL;
 		} break;
 
 		case REPLParser::OperatorNode::OP_NOT_EQUAL: {
-
+			variant_operator = Variant::OP_NOT_EQUAL;
 		} break;
 
 		case REPLParser::OperatorNode::OP_LESS: {
-
+			variant_operator = Variant::OP_LESS;
 		} break;
 
 		case REPLParser::OperatorNode::OP_LESS_EQUAL: {
-
+			variant_operator = Variant::OP_LESS_EQUAL;
 		} break;
 
 		case REPLParser::OperatorNode::OP_GREATER: {
-
+			variant_operator = Variant::OP_GREATER;
 		} break;
 
 		case REPLParser::OperatorNode::OP_GREATER_EQUAL: {
-
+			variant_operator = Variant::OP_GREATER_EQUAL;
 		} break;
 
 		case REPLParser::OperatorNode::OP_AND: {
-
+			variant_operator = Variant::OP_AND;
 		} break;
 
 		case REPLParser::OperatorNode::OP_OR: {
-
+			variant_operator = Variant::OP_OR;
 		} break;
 
 		case REPLParser::OperatorNode::OP_ADD: {
-
-			print_line("[OP_ADD]");
 			variant_operator = Variant::OP_ADD;
 		} break;
 
 		case REPLParser::OperatorNode::OP_SUB: {
-
+			// TODO Typo in Godot operator here.
+			variant_operator = Variant::OP_SUBSTRACT;
 		} break;
 
 		case REPLParser::OperatorNode::OP_MUL: {
-
+			variant_operator = Variant::OP_MULTIPLY;
 		} break;
 
 		case REPLParser::OperatorNode::OP_DIV: {
-
+			variant_operator = Variant::OP_DIVIDE;
 		} break;
 
 		case REPLParser::OperatorNode::OP_MOD: {
-
+			variant_operator = Variant::OP_MODULE;
 		} break;
 
 		case REPLParser::OperatorNode::OP_SHIFT_LEFT: {
-
+			variant_operator = Variant::OP_SHIFT_LEFT;
 		} break;
 
 		case REPLParser::OperatorNode::OP_SHIFT_RIGHT: {
-
+			variant_operator = Variant::OP_SHIFT_RIGHT;
 		} break;
 
 		case REPLParser::OperatorNode::OP_INIT_ASSIGN: {
@@ -498,15 +500,15 @@ Variant REPL::eval_tree(const REPLParser::Node* p_node) {
 		} break;
 
 		case REPLParser::OperatorNode::OP_BIT_AND: {
-
+			variant_operator = Variant::OP_BIT_AND;
 		} break;
 
 		case REPLParser::OperatorNode::OP_BIT_OR: {
-
+			variant_operator = Variant::OP_BIT_OR;
 		} break;
 
 		case REPLParser::OperatorNode::OP_BIT_XOR: {
-
+			variant_operator = Variant::OP_BIT_XOR;
 		} break;
 
 		default: {
@@ -520,11 +522,17 @@ Variant REPL::eval_tree(const REPLParser::Node* p_node) {
 						  arguments_values[1],
 						  result,
 						  is_valid);
-		print_line(String(arguments_values[0]) +
-				   String(" + ") +
-				   String(arguments_values[1]) +
-				   String(" = ") +
-				   String(result));
+		if (is_valid) {
+
+			print_line(String(result));
+			// print_line(String(arguments_values[0]) +
+			//		   String(" ") +
+			//		   String(variant_operator) +
+			//		   String(" ") +
+			//		   String(arguments_values[1]) +
+			//		   String(" = ") +
+			//		   String(result));
+		}
 		return result;
 	} break;
 
