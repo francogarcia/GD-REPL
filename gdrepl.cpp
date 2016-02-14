@@ -158,6 +158,8 @@ Variant REPL::eval(const String& p_code) {
 		return "[Error: there is not a script instance yet.]";
 	}
 
+	// TODO: See https://github.com/godotengine/godot/blob/master/modules/gdscript/gd_compiler.cpp
+
 	REPLParser parser;
 	//const String code = build_script(p_code); // Godot assumes classes when parsing.
 	const String code = p_code;
@@ -263,7 +265,8 @@ Variant REPL::eval_tree(const REPLParser::Node* p_node) {
 		}
 
 		// Perform the operation.
-		Variant result;
+		Variant result = "TODO: Operator\n";
+		Variant::Operator variant_operator;
 		switch (gd_operator->op) {
 
 // Emacs Lisp code to creating the operators case statements (C-x C-e to eval).
@@ -418,6 +421,8 @@ Variant REPL::eval_tree(const REPLParser::Node* p_node) {
 
 		case REPLParser::OperatorNode::OP_ADD: {
 
+			print_line("[OP_ADD]");
+			variant_operator = Variant::OP_ADD;
 		} break;
 
 		case REPLParser::OperatorNode::OP_SUB: {
@@ -509,8 +514,18 @@ Variant REPL::eval_tree(const REPLParser::Node* p_node) {
 		} break;
 		}
 
-		// return result;
-		return "TODO: Operator\n";
+		bool is_valid = false;
+		Variant::evaluate(variant_operator,
+						  arguments_values[0],
+						  arguments_values[1],
+						  result,
+						  is_valid);
+		print_line(String(arguments_values[0]) +
+				   String(" + ") +
+				   String(arguments_values[1]) +
+				   String(" = ") +
+				   String(result));
+		return result;
 	} break;
 
 	case REPLParser::Node::TYPE_FUNCTION: {
