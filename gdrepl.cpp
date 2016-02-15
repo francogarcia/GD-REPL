@@ -267,6 +267,7 @@ Variant REPL::eval_tree(const REPLParser::Node* p_node) {
 		// Perform the operation.
 		Variant result = "TODO: Operator\n";
 		Variant::Operator variant_operator;
+		bool should_assign = false;
 		switch (gd_operator->op) {
 
 // Emacs Lisp code to creating the operators case statements (C-x C-e to eval).
@@ -452,51 +453,61 @@ Variant REPL::eval_tree(const REPLParser::Node* p_node) {
 		} break;
 
 		case REPLParser::OperatorNode::OP_INIT_ASSIGN: {
-
+			should_assign = true;
 		} break;
 
 		case REPLParser::OperatorNode::OP_ASSIGN: {
-
+			should_assign = true;
 		} break;
 
 		case REPLParser::OperatorNode::OP_ASSIGN_ADD: {
-
+			variant_operator = Variant::OP_ADD;
+			should_assign = true;
 		} break;
 
 		case REPLParser::OperatorNode::OP_ASSIGN_SUB: {
-
+			variant_operator = Variant::OP_SUBSTRACT;
+			should_assign = true;
 		} break;
 
 		case REPLParser::OperatorNode::OP_ASSIGN_MUL: {
-
+			variant_operator = Variant::OP_MULTIPLY;
+			should_assign = true;
 		} break;
 
 		case REPLParser::OperatorNode::OP_ASSIGN_DIV: {
-
+			variant_operator = Variant::OP_DIVIDE;
+			should_assign = true;
 		} break;
 
 		case REPLParser::OperatorNode::OP_ASSIGN_MOD: {
-
+			variant_operator = Variant::OP_MODULE;
+			should_assign = true;
 		} break;
 
 		case REPLParser::OperatorNode::OP_ASSIGN_SHIFT_LEFT: {
-
+			variant_operator = Variant::OP_SHIFT_LEFT;
+			should_assign = true;
 		} break;
 
 		case REPLParser::OperatorNode::OP_ASSIGN_SHIFT_RIGHT: {
-
+			variant_operator = Variant::OP_SHIFT_RIGHT;
+			should_assign = true;
 		} break;
 
 		case REPLParser::OperatorNode::OP_ASSIGN_BIT_AND: {
-
+			variant_operator = Variant::OP_BIT_AND;
+			should_assign = true;
 		} break;
 
 		case REPLParser::OperatorNode::OP_ASSIGN_BIT_OR: {
-
+			variant_operator = Variant::OP_BIT_OR;
+			should_assign = true;
 		} break;
 
 		case REPLParser::OperatorNode::OP_ASSIGN_BIT_XOR: {
-
+			variant_operator = Variant::OP_BIT_XOR;
+			should_assign = true;
 		} break;
 
 		case REPLParser::OperatorNode::OP_BIT_AND: {
@@ -516,23 +527,52 @@ Variant REPL::eval_tree(const REPLParser::Node* p_node) {
 		} break;
 		}
 
-		bool is_valid = false;
-		Variant::evaluate(variant_operator,
-						  arguments_values[0],
-						  arguments_values[1],
-						  result,
-						  is_valid);
-		if (is_valid) {
+		// Check if the operator requires evaluation, instead of being an
+		// assignment.
+		if ((gd_operator->op != REPLParser::OperatorNode::OP_INIT_ASSIGN) &&
+			(gd_operator->op != REPLParser::OperatorNode::OP_ASSIGN)) {
 
-			print_line(String(result));
-			// print_line(String(arguments_values[0]) +
-			//		   String(" ") +
-			//		   String(variant_operator) +
-			//		   String(" ") +
-			//		   String(arguments_values[1]) +
-			//		   String(" = ") +
-			//		   String(result));
+			// Evaluate the operator.
+			bool is_valid = false;
+			Variant::evaluate(variant_operator,
+							  arguments_values[0],
+							  arguments_values[1],
+							  result,
+							  is_valid);
+			if (is_valid) {
+
+				print_line(String(result));
+				// print_line(String(arguments_values[0]) +
+				//		   String(" ") +
+				//		   String(variant_operator) +
+				//		   String(" ") +
+				//		   String(arguments_values[1]) +
+				//		   String(" = ") +
+				//		   String(result));
+			} else {
+
+				return "[ERROR: Cannot perform the operation]";
+			}
 		}
+
+		if (should_assign) {
+
+			if ((gd_operator->op != REPLParser::OperatorNode::OP_INIT_ASSIGN) &&
+				(gd_operator->op != REPLParser::OperatorNode::OP_ASSIGN)) {
+
+				// Perform the assignment using the evaluated result.
+				//arguments_values[0] = result;
+				print_line(String(arguments_values[0]) + String(" = ") + String(result));
+			} else {
+
+				// Assign the second term as the result.
+				//arguments_values[0] = arguments_values[1];
+				print_line(String(arguments_values[0]) + String(" = ") + String(arguments_values[1]));
+			}
+
+			Variant result = "TODO: Assignment\n";
+		}
+
 		return result;
 	} break;
 
