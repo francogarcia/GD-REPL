@@ -8,10 +8,9 @@ to evaluate GDScript expressions in the editor itself.
 
 * Example
 
-See the =editor_plugin= project.
+See the =GDScriptREPL= project.
 
-Currently, it only supports expressions which evaluates to a result (or a call
-to an existing function).
+Currently, the REPL is missing the =L= (loop) part.
 
 * Godot 2
 
