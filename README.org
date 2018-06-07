@@ -13,4 +13,8 @@ See the =editor_plugin= project.
 Currently, it only supports expressions which evaluates to a result (or a call
 to an existing function).
 
+* Godot 2
+
+For Godot 2 support, please refer to the [[https://github.com/francogarcia/GD-REPL/tree/Godot2-REPL][Godot2-REPL]] tag.
+
 * TODO Installation
